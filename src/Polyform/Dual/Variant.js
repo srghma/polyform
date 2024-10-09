@@ -1,5 +1,5 @@
 "use strict";
 
-exports.unsafeStringify = function(a) {
+export function unsafeStringify(a) {
   return JSON.stringify(a);
 }

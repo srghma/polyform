@@ -21,10 +21,10 @@ import Test.QuickCheck.Laws (A, B, C, checkLaws)
 import Test.QuickCheck.Laws.Control as Control
 import Test.QuickCheck.Laws.Data as Data
 import Type.Prelude (Proxy(..))
-import Type.Proxy (Proxy2(..), Proxy3(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 newtype AReporter e i o = AReporter (Reporter Identity e i o)
+
 instance eqAReporter ∷ (Eq o, Eq e, Bounded i, Enum i) ⇒ Eq (AReporter e i o) where
   eq (AReporter r1) (AReporter r2) =
     let
@@ -36,6 +36,7 @@ fromEither ∷ ∀ a e. Either e a → R e a
 fromEither = unsafeCoerce
 
 newtype Ar e i o = Ar (i → Identity (R e o))
+
 instance arbitraryA ∷ (Arbitrary e, Coarbitrary i, Arbitrary o) ⇒ Arbitrary (AReporter e i o) where
   arbitrary =
     -- | Type annotation just for readability
@@ -73,6 +74,6 @@ suite = checkLaws "Reporter" do
   -- Control.checkMonadZero prx2Array
   -- Control.checkMonadPlus prx2Array
   where
-  prxReporter = Proxy ∷ Proxy (AReporter A B C)
-  prx2Reporter = Proxy2 ∷ Proxy2 (AReporter A B)
-  prx3Reporter = Proxy3 ∷ Proxy3 (AReporter A)
+  prxReporter = Proxy ∷ _ (AReporter A B C)
+  prx2Reporter = Proxy ∷ _ (AReporter A B)
+  prx3Reporter = Proxy ∷ _ (AReporter A)

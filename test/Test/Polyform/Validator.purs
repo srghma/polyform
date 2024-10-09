@@ -18,10 +18,11 @@ import Test.QuickCheck.Gen (Gen)
 import Test.QuickCheck.Laws (A, B, C, checkLaws)
 import Test.QuickCheck.Laws.Control as Control
 import Test.QuickCheck.Laws.Data as Data
-import Type.Proxy (Proxy(..), Proxy2(..), Proxy3(..))
+import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 newtype AValidator e i o = AValidator (Validator Identity e i o)
+
 instance eqAValidator ∷ (Eq o, Eq e, Bounded i, Enum i) ⇒ Eq (AValidator e i o) where
   eq (AValidator (Validator (Star v1))) (AValidator (Validator (Star v2))) =
     let
@@ -33,6 +34,7 @@ fromEither ∷ ∀ a e. Either e a → V e a
 fromEither = unsafeCoerce
 
 newtype Ar e i o = Ar (i → Identity (V e o))
+
 instance arbitraryA ∷ (Arbitrary e, Coarbitrary i, Arbitrary o) ⇒ Arbitrary (AValidator e i o) where
   arbitrary =
     -- | Type annotation just for readability
@@ -71,6 +73,6 @@ suite = checkLaws "Validator" do
   -- Control.checkMonadZero prx2Array
   -- Control.checkMonadPlus prx2Array
   where
-  prxValidator = Proxy ∷ Proxy (AValidator A B C)
-  prx2Validator = Proxy2 ∷ Proxy2 (AValidator A B)
-  prx3Validator = Proxy3 ∷ Proxy3 (AValidator A)
+  prxValidator = Proxy ∷ _ (AValidator A B C)
+  prx2Validator = Proxy ∷ _ (AValidator A B)
+  prx3Validator = Proxy ∷ _ (AValidator A)

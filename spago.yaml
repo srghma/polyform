@@ -1,0 +1,38 @@
+package:
+  dependencies:
+    - bifunctors
+    - control
+    - either
+    - functors
+    - heterogeneous
+    - identity
+    - invariant
+    - lists
+    - maybe
+    - newtype
+    - ordered-collections
+    - parallel
+    - partial
+    - prelude
+    - profunctor
+    - record
+    - transformers
+    - tuples
+    - type-equality
+    - typelevel-prelude
+    - unsafe-coerce
+    - validation
+    - variant
+  name: polyform
+  test:
+    main: Test.Main
+    dependencies:
+      - arrays
+      - effect
+      - enums
+      - quickcheck
+      - quickcheck-laws
+workspace:
+  extraPackages: {}
+  packageSet:
+    registry: 60.4.0
