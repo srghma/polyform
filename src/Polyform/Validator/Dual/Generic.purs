@@ -12,8 +12,9 @@ import Polyform.Validator (Validator)
 import Prim.RowList (class RowToList)
 import Type.Proxy (Proxy)
 
-sum ∷ ∀ a m e i rep r s
-  .  Monad m
+sum
+  ∷ ∀ a m e i rep r s
+  . Monad m
   ⇒ Semigroup e
   ⇒ Generic a rep
   ⇒ GDualSum (Validator m e) s i rep r
@@ -22,7 +23,8 @@ sum ∷ ∀ a m e i rep r s
   → Dual (Validator m e) s i a
 sum = Dual.Generic.sum
 
-variant ∷ ∀ e i d dl m s v
+variant
+  ∷ ∀ e i d dl m s v
   . Monad m
   ⇒ RowToList d dl
   ⇒ Semigroup e

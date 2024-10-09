@@ -41,6 +41,7 @@ import Data.Tuple (Tuple(..))
 import Data.Validation.Semigroup (V(..), invalid, validation)
 
 newtype Validator m e i o = Validator (Star (Compose m (V e)) i o)
+
 derive instance newtypeValidator ∷ Newtype (Validator m r i o) _
 derive newtype instance functorValidator ∷ (Applicative m) ⇒ Functor (Validator m e i)
 derive newtype instance applyValidator ∷ (Applicative m, Semigroup e) ⇒ Apply (Validator m e i)
@@ -125,13 +126,13 @@ invalidate ∷ ∀ e i o m. Applicative m ⇒ (i → e) → Validator m e i o
 invalidate inv = liftFnMaybe inv (const Nothing)
 
 check ∷ ∀ e i m. Applicative m ⇒ Semigroup e ⇒ (i → e) → (i → Boolean) → Validator m e i i
-check e c = liftFnV \i → if c i
-  then pure i
+check e c = liftFnV \i →
+  if c i then pure i
   else invalid (e i)
 
 checkM ∷ ∀ e i m. Monad m ⇒ Semigroup e ⇒ (i → e) → (i → m Boolean) → Validator m e i i
-checkM e c = liftFnMV \i → c i >>= if _
-  then pure $ pure i
+checkM e c = liftFnMV \i → c i >>=
+  if _ then pure $ pure i
   else pure $ invalid (e i)
 
 -- | Lifts natural transformation so it hoists internal validator functor.
@@ -141,6 +142,7 @@ hoist n (Validator (Star v)) = Validator $ Star (map (bihoistCompose n identity)
 -- | Provides access to validation result
 -- | so you can `bimap` over `e` and `b` type in resulting `V e b`.
 newtype BifunctorValidator m i e o = BifunctorValidator (Validator m e i o)
+
 derive instance newtypeBifunctorValidator ∷ Newtype (BifunctorValidator m i e o) _
 
 instance bifunctorBifunctorValidator ∷ Monad m ⇒ Bifunctor (BifunctorValidator m i) where
@@ -149,7 +151,8 @@ instance bifunctorBifunctorValidator ∷ Monad m ⇒ Bifunctor (BifunctorValidat
       Compose v = f i
     map (bimap l r) v
 
-bimapValidator ∷ ∀ i e e' m o o'
+bimapValidator
+  ∷ ∀ i e e' m o o'
   . (Monad m)
   ⇒ (e → e')
   → (o → o')
@@ -171,16 +174,18 @@ lmapMWithInput f v = liftFnMV $ \i → runValidator v i >>= case _ of
   V (Right a) → pure $ V (Right a)
 
 bimapM
-  ∷ ∀ e e' i m o o'. Monad m
+  ∷ ∀ e e' i m o o'
+  . Monad m
   ⇒ Semigroup e'
   ⇒ (e → m e')
   → (o → m o')
   → Validator m e i o
   → Validator m e' i o'
-bimapM l r v = liftFnM r  <<< lmapM l v
+bimapM l r v = liftFnM r <<< lmapM l v
 
 bimapMWithInput
-  ∷ ∀ e e' i m o o'. Monad m
+  ∷ ∀ e e' i m o o'
+  . Monad m
   ⇒ Semigroup e'
   ⇒ ((Tuple i e) → m e')
   → ((Tuple i o) → m o')

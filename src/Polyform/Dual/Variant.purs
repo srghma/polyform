@@ -15,7 +15,8 @@ import Unsafe.Coerce (unsafeCoerce)
 -- |`prefix` can be used to encode tagging of a given option.
 -- | Please take a look at `Polyform.Duals.Json.on` example
 -- | from `polyform-validators`.
-on ∷ ∀ a i l p r r' s
+on
+  ∷ ∀ a i l p r r' s
   . Row.Cons l a r r'
   ⇒ IsSymbol l
   ⇒ Alt (p i)
@@ -34,14 +35,13 @@ on prefix label d (Dual (DualD restPrs restSer)) =
     expandCase = unsafeCoerce
   in
     dual
-      (inj label <$> prs <|> ((expandCase <$> restPrs )))
+      (inj label <$> prs <|> ((expandCase <$> restPrs)))
       (restSer # Variant.on label ser)
 
 case_ ∷ ∀ i p s. Applicative (p i) ⇒ Dual p s i (Variant ())
 case_ = dual prs ser
   where
-    prs = unsafeCoerce (\_ → unsafeCrashWith ("Dual.Variant.case_: trying to parse empty Variant"))
-    ser i = unsafeCrashWith ("Dual.Variant.case_: serializing empty Variant: " <> unsafeStringify i)
-
+  prs = unsafeCoerce (\_ → unsafeCrashWith ("Dual.Variant.case_: trying to parse empty Variant"))
+  ser i = unsafeCrashWith ("Dual.Variant.case_: serializing empty Variant: " <> unsafeStringify i)
 
 foreign import unsafeStringify :: forall a. a -> String

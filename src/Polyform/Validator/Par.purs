@@ -13,6 +13,7 @@ import Data.Validation.Semigroup (validation)
 import Polyform.Validator (Validator(..))
 
 newtype Par m e i o = Par (Validator m e i o)
+
 derive instance newtypeVaildation ∷ Newtype (Par m e i o) _
 derive instance functorPar ∷ (Applicative m, Semigroup e) ⇒ Functor (Par m e i)
 
@@ -30,10 +31,10 @@ instance altPar ∷ (Monad m, Parallel f m, Monoid e) ⇒ Alt (Par m e i) where
   alt (Par (Validator (Star mv1))) (Par (Validator (Star mv2))) =
     Par $ Validator $ Star $ f
     where
-      f i = Compose $ Parallel.sequential ado
-        r1 ← Parallel.parallel (unwrap $ mv1 i)
-        r2 ← Parallel.parallel (unwrap $ mv2 i)
-        in (validation (const r2) pure r1)
+    f i = Compose $ Parallel.sequential ado
+      r1 ← Parallel.parallel (unwrap $ mv1 i)
+      r2 ← Parallel.parallel (unwrap $ mv2 i)
+      in (validation (const r2) pure r1)
 
 instance plusPar ∷ (Monad m, Monoid e, Parallel f m) ⇒ Plus (Par m e i) where
   empty = Par empty

@@ -9,8 +9,7 @@ module Polyform.Reporter.Dual
   , newtypeIso
   , runReporter
   , runSerializer
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -40,9 +39,10 @@ runSerializer = map runWriter <<< Dual.serializer
 hoist ∷ ∀ e i o m m'. Functor m ⇒ (m ~> m') → Dual m e i o → Dual m' e i o
 hoist nt (Dual.Dual (Dual.DualD reporter ser)) = Dual.dual reporter' ser
   where
-    reporter' = Reporter.hoist nt reporter
+  reporter' = Reporter.hoist nt reporter
 
-liftValidatorDual ∷ ∀ i m r
+liftValidatorDual
+  ∷ ∀ i m r
   . Monad m
   ⇒ Monoid r
   ⇒ Validator.Dual.Dual m r i ~> Dual m r i
@@ -50,7 +50,8 @@ liftValidatorDual d = Dual.dual
   (Reporter.liftValidator $ Dual.parser d)
   (map lift (Dual.serializer d))
 
-liftValidatorDualWith ∷ ∀ e i m o r
+liftValidatorDualWith
+  ∷ ∀ e i m o r
   . Monad m
   ⇒ Monoid r
   ⇒ (Tuple i e → r)
@@ -61,26 +62,25 @@ liftValidatorDualWith fe fo d = Dual.dual
   (Reporter.liftValidatorWith fe fo $ Dual.parser d)
   ser
   where
-    ser ∷ o → Writer r i
-    ser = attachOutput (Dual.serializer d) >>> lift >=> \t@(Tuple i _) → do
-        let
-          r = fo t
-        tell r
-        pure i
+  ser ∷ o → Writer r i
+  ser = attachOutput (Dual.serializer d) >>> lift >=> \t@(Tuple i _) → do
+    let
+      r = fo t
+    tell r
+    pure i
 
-    attachOutput :: ∀ m'. Applicative m' ⇒ (o -> m' i) -> o -> m' (i /\ o)
-    attachOutput
-      = un Star
-      <<< Profunctor.lcmap (\o → Tuple o o)
-      <<< Profunctor.Strong.first
-      <<< Star
+  attachOutput :: ∀ m'. Applicative m' ⇒ (o -> m' i) -> o -> m' (i /\ o)
+  attachOutput = un Star
+    <<< Profunctor.lcmap (\o → Tuple o o)
+    <<< Profunctor.Strong.first
+    <<< Star
 
 mapReport ∷ ∀ i m o r r'. Monad m ⇒ (r → r') → Dual m r i o → Dual m r' i o
 mapReport f (Dual.Dual (Dual.DualD reporter ser)) = Dual.dual reporter' ser'
   where
-    reporter' = Reporter.lmapM (f >>> pure) reporter
+  reporter' = Reporter.lmapM (f >>> pure) reporter
 
-    ser' = mapWriter (map f) <$> ser
+  ser' = mapWriter (map f) <$> ser
 
 iso ∷ ∀ e i m o. Monoid e ⇒ Monad m ⇒ (i → o) → (o → i) → Dual m e i o
 iso p s = liftValidatorDual (Validator.Dual.iso p s)

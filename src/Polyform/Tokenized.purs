@@ -15,8 +15,7 @@ import Data.Tuple.Nested ((/\), type (/\))
 -- | TODO:
 -- | Should we move from `List i` to `Array i /\ Int`
 -- | so we can improve error reporting?
-newtype Tokenized p i o
-  = Tokenized (p (List i /\ Maybe i) (List i /\ o))
+newtype Tokenized p i o = Tokenized (p (List i /\ Maybe i) (List i /\ o))
 
 instance functorTokenized ∷ (Profunctor p) ⇒ Functor (Tokenized p i) where
   map f (Tokenized p) = Tokenized (rmap (map f) p)
@@ -24,7 +23,8 @@ instance functorTokenized ∷ (Profunctor p) ⇒ Functor (Tokenized p i) where
 instance applyTokenized ∷ (Profunctor p, Semigroupoid p, Strong p) ⇒ Apply (Tokenized p i) where
   apply (Tokenized pf) (Tokenized pa) =
     Tokenized
-      $ let
+      $
+        let
           carry (l /\ a2b) = case l of
             h : t → ((t /\ (Just h)) /\ a2b)
             Nil → ((Nil /\ Nothing) /\ a2b)
@@ -36,7 +36,8 @@ instance applyTokenized ∷ (Profunctor p, Semigroupoid p, Strong p) ⇒ Apply (
 instance applicativeTokenized ∷ (Category p, Profunctor p, Strong p) ⇒ Applicative (Tokenized p i) where
   pure i =
     Tokenized
-      $ let
+      $
+        let
           set (l /\ h) = case h of
             Just h' → ((h' : l) /\ i)
             Nothing → (l /\ i)

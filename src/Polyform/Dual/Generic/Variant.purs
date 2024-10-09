@@ -28,16 +28,17 @@ instance gDualVariantLast ∷
   ( IsSymbol l
   , Row.Cons l a () v
   , Row.Cons l (Dual p s i a) () d
-  ) ⇒ GDualVariant p s i (Cons l (Dual p s i a) Nil) d v where
+  ) ⇒
+  GDualVariant p s i (Cons l (Dual p s i a) Nil) d v where
   gDualV _ pre duals = d
     where
-      _l = Proxy ∷ Proxy l
+    _l = Proxy ∷ Proxy l
 
-      Dual (DualD fieldPrs fieldSer) = pre _l (Record.get _l duals)
-      prs = (inj _l <$> fieldPrs)
-      ser = case_ # on _l fieldSer
+    Dual (DualD fieldPrs fieldSer) = pre _l (Record.get _l duals)
+    prs = (inj _l <$> fieldPrs)
+    ser = case_ # on _l fieldSer
 
-      d = dual prs ser
+    d = dual prs ser
 
 else instance gDualVariantCons ∷
   ( IsSymbol l
@@ -47,20 +48,21 @@ else instance gDualVariantCons ∷
   , Row.Lacks l dt
   , Row.Cons l (Dual p s i a) dt d
   , GDualVariant p s i dlt dt vt
-  ) ⇒ GDualVariant p s i (Cons l (Dual p s i a) dlt) d v where
+  ) ⇒
+  GDualVariant p s i (Cons l (Dual p s i a) dlt) d v where
   gDualV _ pre duals = d
     where
-      _l = Proxy ∷ Proxy l
+    _l = Proxy ∷ Proxy l
 
-      duals' ∷ { | dt }
-      duals' = Record.delete _l duals
-      Dual (DualD prs ser) = gDualV (Proxy ∷ Proxy dlt) pre duals'
-      Dual (DualD fieldPrs fieldSer) = pre _l (Record.get _l duals)
+    duals' ∷ { | dt }
+    duals' = Record.delete _l duals
+    Dual (DualD prs ser) = gDualV (Proxy ∷ Proxy dlt) pre duals'
+    Dual (DualD fieldPrs fieldSer) = pre _l (Record.get _l duals)
 
-      prs' = (inj _l <$> fieldPrs) <|> (Variant.expand <$> prs)
-      ser' = ser # on _l fieldSer
+    prs' = (inj _l <$> fieldPrs) <|> (Variant.expand <$> prs)
+    ser' = ser # on _l fieldSer
 
-      d = dual prs' ser'
+    d = dual prs' ser'
 
 variant
   ∷ ∀ d dl p i v s

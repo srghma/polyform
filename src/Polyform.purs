@@ -2,8 +2,7 @@ module Polyform
   ( module Validator
   , module Reporter
   , module Dual
-  )
-  where
+  ) where
 
 import Polyform.Validator (Validator(..)) as Validator
 import Polyform.Reporter (Reporter(..)) as Reporter

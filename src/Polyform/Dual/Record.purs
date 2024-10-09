@@ -23,21 +23,23 @@ instance categoryProductBuilder ∷ (Monoid i, Applicative s, Applicative (p i))
     (pure identity)
     (const $ pure mempty)
 
-insert ∷ ∀ i n o p prs prs' s ser ser'
+insert
+  ∷ ∀ i n o p prs prs' s ser ser'
   . Row.Cons' n o ser ser'
   ⇒ Row.Cons' n o prs prs'
   ⇒ Functor (p i)
   ⇒ Proxy n
   → Dual p s i o
-  → Builder p s i { | ser'} ({ | prs}) ({ | prs'})
+  → Builder p s i { | ser' } ({ | prs }) ({ | prs' })
 insert l (Dual (DualD prs ser)) = Builder $ DualD
   (Record.Builder.insert l <$> prs)
   (ser <<< Record.get l)
 
-build ∷ ∀ i o p s
+build
+  ∷ ∀ i o p s
   . Functor (p i)
-  ⇒ Builder p s i { |o} {} { |o}
-  → Dual p s i { | o}
+  ⇒ Builder p s i { | o } {} { | o }
+  → Dual p s i { | o }
 build (Builder (DualD prs ser)) = dual
   (flip Record.Builder.build {} <$> prs)
   ser

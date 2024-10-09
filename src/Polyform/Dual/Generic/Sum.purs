@@ -43,13 +43,13 @@ instance gDualConstructor ::
   , GDualCtr p s i a b
   ) =>
   GDualSum p s i (Constructor sym b) r where
-    gDual pre r = dual prs' ser'
-      where
-      _s = Proxy ∷ Proxy sym
-      Dual (DualD prs ser) = pre _s $
-        (gDualCtr ∷ Dual p s i a → Dual p s i b) (Record.get _s r)
-      ser' (Constructor a) = ser a
-      prs' = Constructor <$> prs
+  gDual pre r = dual prs' ser'
+    where
+    _s = Proxy ∷ Proxy sym
+    Dual (DualD prs ser) = pre _s $
+      (gDualCtr ∷ Dual p s i a → Dual p s i b) (Record.get _s r)
+    ser' (Constructor a) = ser a
+    prs' = Constructor <$> prs
 
 class GDualCtr ∷ (Type -> Type -> Type) -> (Type -> Type) -> Type -> Type -> Type -> Constraint
 class GDualCtr p s i o o' | o → o' where
@@ -58,21 +58,19 @@ class GDualCtr p s i o o' | o → o' where
 instance gDualProduct ::
   GDualCtr p s i (Product a b) (Product a b) where
   gDualCtr = identity
-else
-instance gDualNoArguments ::
+else instance gDualNoArguments ::
   GDualCtr p s i NoArguments NoArguments where
   gDualCtr = identity
-else
-instance gDualArgument ::
+else instance gDualArgument ::
   GDualCtr p s i (Argument a) (Argument a) where
   gDualCtr = identity
-else
-instance gDualAll ::
+else instance gDualAll ::
   GDualCtr p s i a (Argument a) where
   gDualCtr (Dual (DualD prs ser)) =
     dual (Argument <$> prs) (\(Argument a) → ser a)
 
-sum ∷ ∀ a i p rep r s
+sum
+  ∷ ∀ a i p rep r s
   . Generic a rep
   ⇒ GDualSum p s i rep r
   ⇒ Functor (p i)

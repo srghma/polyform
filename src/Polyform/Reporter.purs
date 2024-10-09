@@ -36,8 +36,7 @@ import Data.Tuple (Tuple(..))
 import Data.Validation.Semigroup (V(..), validation)
 import Polyform.Validator (Validator(..), runValidator)
 
-newtype Reporter m r i o
-  = Reporter (Star (MaybeT (WriterT r m)) i o)
+newtype Reporter m r i o = Reporter (Star (MaybeT (WriterT r m)) i o)
 
 derive instance newtypeReporter ∷ Newtype (Reporter m r i b) _
 derive newtype instance functorReporter ∷ (Functor m) ⇒ Functor (Reporter m e i)
@@ -63,8 +62,7 @@ derive newtype instance altReporter ∷ (Monad m, Monoid r) ⇒ Alt (Reporter m 
 derive newtype instance plusReporter ∷ (Monad m, Monoid r) ⇒ Plus (Reporter m r i)
 
 -- where empty = Reporter empty
-type R r a
-  = Tuple (Maybe a) r
+type R r a = Tuple (Maybe a) r
 
 liftV ∷ ∀ a r. Monoid r ⇒ V r a → R r a
 liftV (V (Right a)) = Tuple (Just a) mempty
@@ -121,8 +119,8 @@ liftValidatorWithM f g validator = Reporter $ Star run
   run i =
     MaybeT $ WriterT $ runValidator validator i
       >>= case _ of
-          V (Left e) → f (Tuple i e) >>= Tuple Nothing >>> pure
-          V (Right o) → g (Tuple i o) >>= Tuple (Just o) >>> pure
+        V (Left e) → f (Tuple i e) >>= Tuple Nothing >>> pure
+        V (Right o) → g (Tuple i o) >>= Tuple (Just o) >>> pure
 
 toValidator ∷ ∀ e i m. Functor m ⇒ Monoid e ⇒ Reporter m e i ~> Validator m e i
 toValidator (Reporter (Star f)) = Validator (Star (f >>> un MaybeT >>> un WriterT >>> map toV >>> Compose))
@@ -145,8 +143,7 @@ liftFnEither f = liftFnR $ f >>> liftEitherR
 
 -- | Provides access to validation result so you can
 -- | `bimap` over `r` and `b` type in resulting `R r b`.
-newtype BifunctorReporter m i r o
-  = BifunctorReporter (Reporter m r i o)
+newtype BifunctorReporter m i r o = BifunctorReporter (Reporter m r i o)
 
 derive instance newtypeBifunctorReporter ∷ Newtype (BifunctorReporter m i r o) _
 
@@ -159,13 +156,13 @@ instance bifunctorBifunctorReporter ∷ Monad m ⇒ Bifunctor (BifunctorReporter
             v ← runReporter rep i
             pure $ bimap (map r) l v
 
-bimapReporter ∷
-  ∀ i m o o' r r'.
-  (Monad m) ⇒
-  (r → r') →
-  (o → o') →
-  Reporter m r i o →
-  Reporter m r' i o'
+bimapReporter
+  ∷ ∀ i m o o' r r'
+  . (Monad m)
+  ⇒ (r → r')
+  → (o → o')
+  → Reporter m r i o
+  → Reporter m r' i o'
 bimapReporter l r = unwrap <<< bimap l r <<< BifunctorReporter
 
 lmapReporter ∷ ∀ i m o r r'. Monad m ⇒ (r → r') → Reporter m r i o → Reporter m r' i o
@@ -175,5 +172,5 @@ lmapM ∷ ∀ i m r r'. Monad m ⇒ (r → m r') → Reporter m r i ~> Reporter 
 lmapM f reporter =
   liftFnMR $ runReporter reporter
     >=> case _ of
-        Tuple (Just a) r → Tuple (Just a) <$> f r
-        Tuple _ r → Tuple Nothing <$> f r
+      Tuple (Just a) r → Tuple (Just a) <$> f r
+      Tuple _ r → Tuple Nothing <$> f r

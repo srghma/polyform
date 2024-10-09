@@ -24,8 +24,7 @@ import Data.Profunctor (class Profunctor, dimap, lcmap)
 -- | They "join" in `Dual` type which wraps `DualD` a few
 -- | lines below.
 data DualD :: (Type -> Type -> Type) -> (Type -> Type) -> Type -> Type -> Type -> Type
-data DualD p s i o o'
-  = DualD (p i o') (o → s i)
+data DualD p s i o o' = DualD (p i o') (o → s i)
 
 derive instance functorDualD ∷ (Functor (p i)) ⇒ Functor (DualD p s i o)
 
@@ -51,19 +50,18 @@ instance lazyDualD ∷ (Lazy (p i o')) ⇒ Lazy (DualD p s i o o') where
       (defer \_ → let DualD _ ser = f unit in ser)
 
 -- | `Dual` turns `DualD` into `Invariant` (it differs from `Join`).
-newtype Dual p s i o
-  = Dual (DualD p s i o o)
+newtype Dual p s i o = Dual (DualD p s i o o)
 
 derive instance newtypeDual ∷ Newtype (Dual p s i o) _
 
 instance invariantFunctor ∷ Functor (p i) ⇒ Invariant (Dual p s i) where
   imap f g (Dual d) = Dual (dimap g f d)
 
-dual ∷
-  ∀ i o p s.
-  (p i o) →
-  (o → s i) →
-  Dual p s i o
+dual
+  ∷ ∀ i o p s
+  . (p i o)
+  → (o → s i)
+  → Dual p s i o
 dual prs = Dual <<< DualD prs
 
 dual' ∷ ∀ i p s. Applicative s ⇒ p i i → Dual p s i i
@@ -119,11 +117,11 @@ instance lazyDual ∷ (Lazy (p i o)) ⇒ Lazy (Dual p s i o) where
 -- | Of course these two steps can be handled by some generic layer.
 infixl 5 diverge as ~
 
-diverge ∷
-  ∀ i o o' p s.
-  Functor (p i) ⇒
-  Profunctor p ⇒
-  (o' → o) →
-  Dual p s i o →
-  DualD p s i o' o
+diverge
+  ∷ ∀ i o o' p s
+  . Functor (p i)
+  ⇒ Profunctor p
+  ⇒ (o' → o)
+  → Dual p s i o
+  → DualD p s i o' o
 diverge f = lcmap f <<< unwrap

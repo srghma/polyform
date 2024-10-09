@@ -18,8 +18,7 @@ import Data.Profunctor.Strong (class Strong)
 -- | * No `Semigroup e` constraint in its `Alt` instance (consistent with `Either`)
 -- |
 -- | * Provides `Parallel` instance.
-newtype Exceptor m e i o
-  = Exceptor (Star (ExceptT e m) i o)
+newtype Exceptor m e i o = Exceptor (Star (ExceptT e m) i o)
 
 derive instance newtypeExceptor ∷ Newtype (Exceptor m r i o) _
 derive newtype instance functorExceptor ∷ Applicative m ⇒ Functor (Exceptor m e i)
@@ -43,11 +42,10 @@ instance altExceptor ∷ (Monad m) ⇒ Alt (Exceptor m e i) where
           ExceptT do
             runExceptT (v1 i)
               >>= case _ of
-                  (Right o1) → pure $ pure o1
-                  (Left _) → runExceptT (v2 i)
+                (Right o1) → pure $ pure o1
+                (Left _) → runExceptT (v2 i)
 
-newtype ParExceptor f e i o
-  = ParExceptor (Star (Compose f (Either e)) i o)
+newtype ParExceptor f e i o = ParExceptor (Star (Compose f (Either e)) i o)
 
 derive newtype instance functorParExceptor ∷ Applicative f ⇒ Functor (ParExceptor f e i)
 derive newtype instance applyParExceptor ∷ Applicative f ⇒ Apply (ParExceptor f e i)

@@ -9,8 +9,7 @@ import Polyform.Tokenized (Tokenized, liftUntokenized) as Tokenized
 import Polyform.Tokenized (unliftUntokenized)
 import Polyform.Validator (Validator, liftFnEither, runValidator) as Validator
 
-type Validator m err
-  = Tokenized.Tokenized (Validator.Validator m err)
+type Validator m err = Tokenized.Tokenized (Validator.Validator m err)
 
 liftUntokenized ∷ ∀ err i o m. Monad m ⇒ Semigroup err ⇒ err → Validator.Validator m err i o → Validator m err i o
 liftUntokenized e v = Tokenized.liftUntokenized (v <<< l)

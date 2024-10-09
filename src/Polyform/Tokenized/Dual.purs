@@ -12,8 +12,7 @@ import Polyform.Dual (Dual, dual, parser, serializer) as Polyform.Dual
 import Polyform.Tokenized (Tokenized)
 import Polyform.Tokenized (liftUntokenized, unliftUntokenized) as Tokenized
 
-data DualD p s i o o'
-  = DualD (Tokenized p i o') (o → s (List i))
+data DualD p s i o o' = DualD (Tokenized p i o') (o → s (List i))
 
 derive instance functorDualD ∷ (Profunctor p) ⇒ Functor (DualD p s i o)
 
@@ -27,6 +26,7 @@ instance profunctorDualD ∷ (Profunctor p) ⇒ Profunctor (DualD p s i) where
   dimap l r (DualD prs ser) = DualD (map r prs) (l >>> ser)
 
 newtype Dual p s i o = Dual (DualD p s i o o)
+
 derive instance newtypeDual ∷ Newtype (Dual p s i o) _
 
 dual ∷ ∀ i o p s. Tokenized p i o → (o → s (List i)) → Dual p s i o
@@ -35,13 +35,13 @@ dual p s = Dual (DualD p s)
 pureDual ∷ ∀ i o p s. Category p ⇒ Strong p ⇒ Applicative s ⇒ o → Dual p s i o
 pureDual o = Dual (pure o)
 
-diverge ∷
-  ∀ i o o' p s.
-  Functor (p i) ⇒
-  Profunctor p ⇒
-  (o' → o) →
-  Dual p s i o →
-  DualD p s i o' o
+diverge
+  ∷ ∀ i o o' p s
+  . Functor (p i)
+  ⇒ Profunctor p
+  ⇒ (o' → o)
+  → Dual p s i o
+  → DualD p s i o' o
 diverge f = lcmap f <<< unwrap
 
 infixl 5 diverge as ~
